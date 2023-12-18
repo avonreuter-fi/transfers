@@ -1,0 +1,553 @@
+<!-- sldsValidatorIgnore -->
+<!--
+@description       : 
+@author            : Sai Jikkidi
+@group             : 
+@last modified on  : 06-16-2023
+Revision : Prasanth Saravanan
+-->
+<template>
+
+    <template if:true={showQuickinteraction}>
+
+        <!-- Modal/Popup Box LWC starts here -->
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-05" aria-modal="true"
+            aria-describedby="modal-content-id-5" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+
+                <!-- Modal/Popup Box LWC header here -->
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        title="Close" onclick={closeQuickInteractionModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse"
+                            size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="modal-heading-05" class="slds-text-heading_medium slds-hyphenate">Quick Interaction
+                    </h2>
+                </header>
+                <!-- Modal/Popup Box LWC body starts here -->
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-5">
+
+                    <template if:true={showSpinner}>
+                        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                    </template>
+
+
+                    <div class="c-container">
+
+                        <lightning-record-edit-form object-api-name="Interaction" data-my-id="interactionForm"
+                            onsuccess={handleInteractionSuccess} onsubmit={handleInteractionSubmit}
+                            onerror={handleInteractionError}>
+                            <lightning-messages> </lightning-messages>
+                            <lightning-layout>
+
+                                <template if:true={showHouseholdField}>
+                                    <lightning-layout-item size="6">
+                                        <lightning-input-field field-name="AccountId" disabled="true" value={householdId}
+                                            onchange={handleFormAccountIdChange}>
+                                        </lightning-input-field>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="6">
+                                        <lightning-input-field field-name="InteractionType"
+                                            onchange={handleInteractionTypeChange} value="Left Message" disabled="true">
+                                        </lightning-input-field>
+                                    </lightning-layout-item>
+                                </template>
+                                <template if:false={showHouseholdField}>
+                                    <lightning-input-field field-name="InteractionType"
+                                            onchange={handleInteractionTypeChange} value="Left Message" disabled="true">
+                                    </lightning-input-field>
+                                </template>
+
+
+                                <lightning-input-field field-name="Phone_Type__c" class="slds-hide">
+                                </lightning-input-field>
+
+                                <lightning-input-field data-id="interactionName" field-name="Name" class="slds-hide">
+                                </lightning-input-field>
+
+                                <lightning-input-field field-name="Case__c" value={caseId} class="slds-hide">
+                                </lightning-input-field>
+                                <!--Changes  JIRA - ACENEW -1135-->
+                                <lightning-input-field field-name="Opportunity__c" class="slds-hide">
+                                </lightning-input-field>
+
+                            </lightning-layout>
+
+                        </lightning-record-edit-form>
+
+                        <lightning-record-edit-form object-api-name="InteractionSummary"
+                            data-my-id="interactionSummaryForm" onsuccess={handleInteractionSummarySuccess}>
+                            <lightning-messages> </lightning-messages>
+                            <lightning-textarea name="MeetingNotesText" variant="label-hidden"
+                                style='--sds-c-textarea-sizing-min-height:900px;' value={manageMeetingNotes}
+                                data-id="meetingNotesText">
+                            </lightning-textarea>
+                            <template if:true={showInteractionSummaryFields}>
+                                <div class="slds-hidden">
+                                    <lightning-input-field data-id="MeetingNotesId" field-name="MeetingNotes">
+                                    </lightning-input-field>
+                                    <lightning-input-field data-id="interactionSummaryName" field-name="Name">
+                                    </lightning-input-field>
+                                    <lightning-input-field data-id="interactionSummaryStatus" field-name="Status">
+                                    </lightning-input-field>
+                                    <lightning-input-field data-id="InteractionSummaryInteractionId"
+                                        field-name="InteractionId">
+                                    </lightning-input-field>
+                                    <lightning-input-field data-id="InteractionSummaryPartnerAccountId"
+                                        field-name="PartnerAccountId">
+                                    </lightning-input-field>
+                                    <lightning-input-field data-id="InteractionSummaryAccountId" field-name="AccountId">
+                                    </lightning-input-field>
+                                    <lightning-input-field data-id="InteractionSummaryCaseId" field-name="Case__c">
+                                    </lightning-input-field>
+
+                                </div>
+                            </template>
+                        </lightning-record-edit-form>
+
+
+                    </div>
+
+                </div>
+
+                <div class="slds-modal__footer">
+
+                    <lightning-button variant="destructive" label="Cancel" title="Cancel action"
+                        onclick={closeQuickInteractionModal}>
+                    </lightning-button>
+
+                    <lightning-button variant="brand" label="Save" title="Publish action" onclick={submitDetails}
+                        class="slds-m-left_x-small"></lightning-button>
+                </div>
+
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <template if:true={showLonginteraction}>
+        <div class="slds-box">
+            <article class="slds-card">
+                <div class="slds-card__header slds-grid">
+                    <header class="slds-media slds-media_center slds-has-flexi-truncate">
+
+                        <div class="slds-media__figure">
+                            <lightning-icon icon-name="standard:partners" title={heading}></lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <h2 class="slds-card__header-title">
+                                <span>{heading}</span>
+                            </h2>
+                        </div>
+                        <div class="slds-no-flex">
+                            <lightning-button variant="brand" label="Create a Self Generated Task"
+                                title="Create a Self Generated Task" onclick={navigateToNewTask}
+                                class="slds-m-left_x-small">
+                            </lightning-button>
+                        </div>
+                    </header>
+                </div>
+                <template if:true={showMarkupSpinner}>
+                    <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                </template>
+                <div class="slds-card__body slds-card__body_inner">
+                    <div class="c-container" data-id="myCmp">
+                        <template if:true={showSpinner}>
+                            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                        </template>
+                        <lightning-layout multiple-rows="true" horizontal-align="spread">
+
+                            <lightning-layout-item padding="around-small" size="12">
+
+                                <lightning-layout>
+                                    <lightning-layout-item padding="around-small" size="4">
+                                        <div class="page-section page-right">
+                                            <div class="slds-text-heading_medium slds-m-left_x-small">
+                                                <strong>
+                                                    Details
+                                                </strong>
+                                            </div>
+                                            <lightning-card>
+                                                <lightning-record-edit-form object-api-name="Interaction"
+                                                    data-my-id="interactionForm" onsuccess={handleInteractionSuccess}
+                                                    onsubmit={handleInteractionSubmit} onerror={handleInteractionError}>
+                                                    <lightning-messages> </lightning-messages>
+                                                    <template if:true={showHouseholdField}>
+                                                    <lightning-input-field field-name="AccountId" value={householdId}
+                                                        onchange={handleFormAccountIdChange}>
+                                                    </lightning-input-field>
+                                                    </template>
+
+                                                    <lightning-input-field field-name="InteractionType" required="true"
+                                                        onchange={handleInteractionTypeChange}>
+                                                    </lightning-input-field>
+
+                                                    <lightning-input-field field-name="Phone_Type__c">
+                                                    </lightning-input-field>
+
+                                                    <lightning-input-field data-id="interactionName" field-name="Name">
+                                                    </lightning-input-field>
+
+                                                    <lightning-input-field field-name="Case__c" value={caseId}>
+                                                    </lightning-input-field>
+                                                    <!--Changes  JIRA - ACENEW -1135-->
+                                                    <lightning-input-field field-name="Opportunity__c" value={oppId}>
+                                                    </lightning-input-field>
+
+                                                </lightning-record-edit-form>
+                                            </lightning-card>
+
+                                            <!--Start of participant Information-->
+
+                                            <lightning-record-edit-form object-api-name="InteractionAttendee"
+                                                onsubmit={handleUserResultClick}>
+                                                <lightning-messages> </lightning-messages>
+                                                <lightning-layout>
+
+                                                    <lightning-layout-item padding="around-small" size="12">
+                                                        <label for="fieldid"> Internal Attendees</label>
+                                                        <lightning-layout class="slds-p-top_xx-small">
+                                                            <lightning-layout-item size="11">
+                                                                <lightning-input-field field-name="UserId"
+                                                                    variant="label-hidden" require="true"
+                                                                    data-my-id="internalUser">
+                                                                </lightning-input-field>
+                                                            </lightning-layout-item>
+
+                                                            <lightning-layout-item size="1">
+
+                                                                <lightning-button-icon class="slds-m-left_xx-small"
+                                                                    type="submit" icon-name="utility:add"
+                                                                    variant="brand" alternative-text="Add Attendees"
+                                                                    title="Add Attendees">
+
+                                                                </lightning-button-icon>
+
+                                                            </lightning-layout-item>
+                                                        </lightning-layout>
+                                                        <div class="slds-p-top_xx-small">
+                                                            <div class="slds-box">
+                                                                <div id="selectionUser" role="listbox"
+                                                                    aria-orientation="horizontal">
+                                                                    <ul class="slds-var-p-top_xxx-small" role="group"
+                                                                        aria-label="Selected Options:">
+                                                                        <template for:each={selectedUserList}
+                                                                            for:item="item">
+                                                                            <li key={item.id} role="presentation">
+                                                                                <lightning-pill label={item.title}
+                                                                                    title={item.title}
+                                                                                    onremove={handleRemoveSelectedUserItem}
+                                                                                    name={item.id}>
+                                                                                    <lightning-icon
+                                                                                        icon-name={item.icon}>
+                                                                                    </lightning-icon>
+                                                                                </lightning-pill>
+                                                                            </li>
+                                                                        </template>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                    </lightning-layout-item>
+
+                                                </lightning-layout>
+
+
+                                            </lightning-record-edit-form>
+                                            
+                                            <lightning-layout>
+
+                                                <lightning-layout-item padding="around-small">
+
+                                                    <div class="slds-form-element">
+                                                        <label class="slds-form-element__label">
+                                                            <strong>External Attendees</strong>
+                                                        </label>
+
+                                                        <lightning-checkbox-group name="External Attendees"
+                                                            options={options} value={_curContactSelection}
+                                                            onchange={handleExternalAttendeeChange} style="columns: 2;"
+                                                            variant="label-hidden">
+                                                        </lightning-checkbox-group>
+                                                    </div>
+
+                                                </lightning-layout-item>
+                                            </lightning-layout>
+                                            
+                                            <!--End of participant Information-->
+                                            <template if:true={showHouseholdField}>
+
+                                            <!--Start of task Information-->
+                                            <div data-id="actionItems">
+                                                <lightning-layout-item padding="around-small">
+
+                                                    <div class="slds-text-heading_medium slds-m-left_x-small">
+                                                        <strong>
+                                                            Household Tasks
+                                                        </strong>
+                                                    </div>
+                                                    <div class="slds-m-top_small">
+                                                        <div style="height: 165px;">
+
+                                                            <lightning-datatable data-my-id="interactionTaskTable"
+                                                                data={data} columns={columns} key-field="id"
+                                                                selected-rows={preSelectedRows}>
+
+                                                            </lightning-datatable>
+                                                        </div>
+                                                        <template if:true={showMessage}>
+                                                            <div class=" slds-notify_alert " role="alert">
+                                                                <span class="slds-assistive-text">No related action item
+                                                                    tasks found.</span>
+                                                                <h2>No related action item tasks found..</h2>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                    <!--  </template> -->
+
+                                                </lightning-layout-item>
+                                                <!--End of task Information-->
+                                                <!--start of event Information-->
+
+                                                <!--Changes  JIRA - ACENEW -1135-->
+                                                <lightning-layout-item padding="around-small">
+
+                                                    <div class="slds-text-heading_medium slds-m-left_x-small">
+                                                        <strong>
+                                                            Household Events
+                                                        </strong>
+                                                    </div>
+                                                    <div class="slds-m-top_small">
+                                                        <div style="height: 165px;">
+
+                                                            <lightning-datatable data-my-id="interactioneventTable"
+                                                                data={Edata} columns={Ecolumns} key-field="id"
+                                                                selected-rows={preSelectedRows}>
+
+                                                            </lightning-datatable>
+                                                        </div>
+                                                        <template if:true={showMessage}>
+                                                            <div class=" slds-notify_alert " role="alert">
+                                                                <span class="slds-assistive-text">No related action item
+                                                                    event found.</span>
+                                                                <h2>No related action item event found..</h2>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                    <!--  </template> -->
+
+                                                </lightning-layout-item>
+                                                <!--End of event Information-->
+
+                                            </div>
+                                        </template>
+
+                                        </div>
+                                    </lightning-layout-item>
+
+                                    <lightning-layout-item padding="around-small" size="8">
+                                        <div class="page-footer page-section">
+
+
+                                            <div class="slds-text-heading_medium slds-m-left_x-small">
+                                                <strong>
+                                                    Worknotes
+                                                </strong>
+                                            </div>
+
+                                            <lightning-card>
+                                                <lightning-record-edit-form object-api-name="InteractionSummary"
+                                                    data-my-id="interactionSummaryForm"
+                                                    onsuccess={handleInteractionSummarySuccess}>
+                                                    <lightning-messages> </lightning-messages>
+                                                    <lightning-textarea name="MeetingNotesText" variant="label-hidden"
+                                                        style='--sds-c-textarea-sizing-min-height:900px;'
+                                                        value={manageMeetingNotes} data-id="meetingNotesText">
+                                                    </lightning-textarea>
+                                                    <template if:true={showInteractionSummaryFields}>
+                                                        <div class="slds-hidden">
+                                                            <lightning-input-field data-id="MeetingNotesId"
+                                                                field-name="MeetingNotes">
+                                                            </lightning-input-field>
+                                                            <lightning-input-field data-id="interactionSummaryName"
+                                                                field-name="Name">
+                                                            </lightning-input-field>
+                                                            <lightning-input-field data-id="interactionSummaryStatus"
+                                                                field-name="Status">
+                                                            </lightning-input-field>
+                                                            <lightning-input-field
+                                                                data-id="InteractionSummaryInteractionId"
+                                                                field-name="InteractionId">
+                                                            </lightning-input-field>
+                                                            <lightning-input-field
+                                                                data-id="InteractionSummaryPartnerAccountId"
+                                                                field-name="PartnerAccountId">
+                                                            </lightning-input-field>
+                                                            <lightning-input-field data-id="InteractionSummaryAccountId"
+                                                                field-name="AccountId">
+
+                                                            </lightning-input-field>
+                                                            <lightning-input-field data-id="InteractionSummaryCaseId"
+                                                                field-name="Case__c">
+
+                                                            </lightning-input-field>
+
+                                                        </div>
+                                                    </template>
+                                                </lightning-record-edit-form>
+                                            </lightning-card>
+                                        </div>
+                                    </lightning-layout-item>
+
+                                </lightning-layout>
+
+                            </lightning-layout-item>
+
+                        </lightning-layout>
+
+
+                        <template if:true={isModalOpen}>
+                            <!-- Modal/Popup Box LWC starts here -->
+                            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                                aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                                <div class="slds-modal__container">
+                                    <!-- Modal/Popup Box LWC header here -->
+                                    <header class="slds-modal__header">
+                                        <button
+                                            class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                            title="Close" onclick={closeModal}>
+                                            <lightning-icon icon-name="utility:close" alternative-text="close"
+                                                variant="inverse" size="small"></lightning-icon>
+                                            <span class="slds-assistive-text">Close</span>
+                                        </button>
+                                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New
+                                            Task
+                                        </h2>
+                                    </header>
+                                    <!-- Modal/Popup Box LWC body starts here -->
+                                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+
+                                        <div class="c-container">
+
+
+                                            <lightning-record-edit-form object-api-name="Action_Item__c"
+                                                onsuccess={handleActionItemSuccess} onerror={handleActionItemError}
+                                                onsubmit={handleActionItemSubmit} data-id="actionItemForm">
+
+                                                <template if:true={showActionItemSpinner}>
+                                                    <lightning-spinner alternative-text="Loading" size="medium">
+                                                    </lightning-spinner>
+                                                </template>
+                                                <lightning-messages> </lightning-messages>
+                                                <lightning-input-field field-name="Subject__c" required="true">
+                                                </lightning-input-field>
+
+                                                <lightning-input-field field-name="Due_Date__c">
+                                                </lightning-input-field>
+
+                                                <lightning-input-field field-name="Client_Name__c"
+                                                    value={primaryContactId}>
+                                                </lightning-input-field>
+
+                                                <lightning-input-field field-name="Status__c">
+                                                </lightning-input-field>
+
+                                                <lightning-input-field field-name="Account__c" value={householdId}>
+                                                </lightning-input-field>
+
+                                                <lightning-input-field field-name="Assigned_To__c"
+                                                    value={investmentCounselorId}>
+                                                </lightning-input-field>
+
+                                                <lightning-input-field field-name="Details__c" required="true">
+                                                </lightning-input-field>
+
+                                                <div class="slds-card__footer">
+                                                    <lightning-button variant="destructive" label="Cancel"
+                                                        title="Cancel action" onclick={closeModal}>
+                                                    </lightning-button>
+
+                                                    <lightning-button variant="brand" label="Submit"
+                                                        title="Submit action" type="submit" class="slds-m-left_x-small">
+                                                    </lightning-button>
+                                                </div>
+
+                                            </lightning-record-edit-form>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </section>
+                            <div class="slds-backdrop slds-backdrop_open"></div>
+                        </template>
+
+
+                        <template if:true={isTaskCloseModalOpen}>
+                            <!-- Modal/Popup Box LWC starts here -->
+                            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                                aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                                <div class="slds-modal__container">
+                                    <!-- Modal/Popup Box LWC header here -->
+                                    <header class="slds-modal__header">
+                                        <button
+                                            class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                                            title="Close" onclick={closeTaskCompleteModal}>
+                                            <lightning-icon icon-name="utility:close" alternative-text="close"
+                                                variant="inverse" size="small"></lightning-icon>
+                                            <span class="slds-assistive-text">Close</span>
+                                        </button>
+                                        <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">Select
+                                            the
+                                            tasks you completed
+                                        </h2>
+                                    </header>
+                                    <!-- Modal/Popup Box LWC body starts here -->
+                                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+
+                                        <div class="c-container">
+                                            <!--Show task to complete-->
+
+                                            <lightning-datatable data-my-id="interactionTaskCompleteTable"
+                                                data={selectedTasksdata} columns={columns} key-field="id"
+                                                onrowselection={handleTableSelectedRows}>
+
+                                            </lightning-datatable>
+
+                                        </div>
+                                        <!-- Modal/Popup Box LWC footer starts here -->
+                                        <footer class="slds-modal__footer">
+                                            <lightning-button variant="destructive" label="Cancel" title="Cancel action"
+                                                onclick={closeTaskCompleteModal}>
+                                            </lightning-button>
+                                            <lightning-button label="Skip" title="Skip" onclick={handleSkip}
+                                                class="slds-m-left_x-small">
+                                            </lightning-button>
+                                            <lightning-button variant="brand" label="Publish" title="Publish action"
+                                                onclick={taskCompleteSubmitDetails} disabled={disablePublish}
+                                                class="slds-m-left_x-small"></lightning-button>
+                                        </footer>
+                                    </div>
+                                </div>
+                            </section>
+                            <div class="slds-backdrop slds-backdrop_open"></div>
+                        </template>
+
+                    </div>
+                </div>
+                <footer class="slds-card__footer">
+
+                    <lightning-button variant="destructive" label="Cancel" title="Cancel action" onclick={closeSubTab}>
+                    </lightning-button>
+
+                    <lightning-button variant="brand" label="Publish" title="Publish action" onclick={submitDetails}
+                        class="slds-m-left_x-small"></lightning-button>
+
+                </footer>
+            </article>
+        </div>
+
+    </template>
+</template>
